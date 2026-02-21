@@ -1,15 +1,15 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
-	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+  import favicon from "$lib/assets/favicon.svg";
+  import { QueryClient, QueryClientProvider } from "@tanstack/svelte-query";
 
-	const queryClient = new QueryClient();
-	let { children } = $props();
+  const queryClient = new QueryClient();
+  let { children } = $props();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+  <link rel="icon" href={favicon} />
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
-	{@render children()}
+  {@render children()}
 </QueryClientProvider>

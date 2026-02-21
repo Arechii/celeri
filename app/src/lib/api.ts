@@ -4,101 +4,103 @@
  * api
  * OpenAPI spec version: 0.1.0
  */
-import {
-  createQuery
-} from '@tanstack/svelte-query';
+
 import type {
-  CreateQueryOptions,
-  CreateQueryResult,
-  DataTag,
-  QueryClient,
-  QueryFunction,
-  QueryKey
-} from '@tanstack/svelte-query';
+	CreateQueryOptions,
+	CreateQueryResult,
+	DataTag,
+	QueryClient,
+	QueryFunction,
+	QueryKey,
+} from "@tanstack/svelte-query";
+import { createQuery } from "@tanstack/svelte-query";
 
 export interface Food {
-  name: string;
+	name: string;
 }
 
 export type getFoodResponse200 = {
-  data: Food
-  status: 200
-}
-
-export type getFoodResponseSuccess = (getFoodResponse200) & {
-  headers: Headers;
+	data: Food;
+	status: 200;
 };
-;
 
-export type getFoodResponse = (getFoodResponseSuccess)
+export type getFoodResponseSuccess = getFoodResponse200 & {
+	headers: Headers;
+};
+
+export type getFoodResponse = getFoodResponseSuccess;
 
 export const getGetFoodUrl = () => {
+	return `http://localhost:3000/food`;
+};
 
+export const getFood = async (
+	options?: RequestInit,
+): Promise<getFoodResponse> => {
+	const res = await fetch(getGetFoodUrl(), {
+		...options,
+		method: "GET",
+	});
 
-  
+	const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  return `http://localhost:3000/food`
-}
-
-export const getFood = async ( options?: RequestInit): Promise<getFoodResponse> => {
-  
-  const res = await fetch(getGetFoodUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  
-  const data: getFoodResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as getFoodResponse
-}
-  
-
-
-
+	const data: getFoodResponse["data"] = body ? JSON.parse(body) : {};
+	return { data, status: res.status, headers: res.headers } as getFoodResponse;
+};
 
 export const getGetFoodQueryKey = () => {
-    return [
-    `http://localhost:3000/food`
-    ] as const;
-    }
+	return [`http://localhost:3000/food`] as const;
+};
 
-    
-export const getGetFoodQueryOptions = <TData = Awaited<ReturnType<typeof getFood>>, TError = unknown>( options?: { query?:Partial<CreateQueryOptions<Awaited<ReturnType<typeof getFood>>, TError, TData>>, fetch?: RequestInit}
-) => {
+export const getGetFoodQueryOptions = <
+	TData = Awaited<ReturnType<typeof getFood>>,
+	TError = unknown,
+>(options?: {
+	query?: Partial<
+		CreateQueryOptions<Awaited<ReturnType<typeof getFood>>, TError, TData>
+	>;
+	fetch?: RequestInit;
+}) => {
+	const { query: queryOptions, fetch: fetchOptions } = options ?? {};
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+	const queryKey = queryOptions?.queryKey ?? getGetFoodQueryKey();
 
-  const queryKey =  queryOptions?.queryKey ?? getGetFoodQueryKey();
+	const queryFn: QueryFunction<Awaited<ReturnType<typeof getFood>>> = ({
+		signal,
+	}) => getFood({ signal, ...fetchOptions });
 
-  
+	return { queryKey, queryFn, ...queryOptions } as CreateQueryOptions<
+		Awaited<ReturnType<typeof getFood>>,
+		TError,
+		TData
+	> & { queryKey: DataTag<QueryKey, TData, TError> };
+};
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getFood>>> = ({ signal }) => getFood({ signal, ...fetchOptions });
+export type GetFoodQueryResult = NonNullable<
+	Awaited<ReturnType<typeof getFood>>
+>;
+export type GetFoodQueryError = unknown;
 
-      
+export function createGetFood<
+	TData = Awaited<ReturnType<typeof getFood>>,
+	TError = unknown,
+>(
+	options?: () => {
+		query?: Partial<
+			CreateQueryOptions<Awaited<ReturnType<typeof getFood>>, TError, TData>
+		>;
+		fetch?: RequestInit;
+	},
+	queryClient?: () => QueryClient,
+): CreateQueryResult<TData, TError> & {
+	queryKey: DataTag<QueryKey, TData, TError>;
+} {
+	const query = createQuery(
+		() => getGetFoodQueryOptions(options?.()),
+		queryClient,
+	) as CreateQueryResult<TData, TError> & {
+		queryKey: DataTag<QueryKey, TData, TError>;
+	};
 
-      
-
-   return  { queryKey, queryFn, ...queryOptions} as CreateQueryOptions<Awaited<ReturnType<typeof getFood>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetFoodQueryResult = NonNullable<Awaited<ReturnType<typeof getFood>>>
-export type GetFoodQueryError = unknown
-
-
-
-export function createGetFood<TData = Awaited<ReturnType<typeof getFood>>, TError = unknown>(
-  options?: () => { query?:Partial<CreateQueryOptions<Awaited<ReturnType<typeof getFood>>, TError, TData>>, fetch?: RequestInit}
- , queryClient?: () => QueryClient 
- ): CreateQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  
-
-  const query = createQuery(() => getGetFoodQueryOptions(options?.()), queryClient) as CreateQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return query
+	return query;
 }
