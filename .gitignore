@@ -1,0 +1,19 @@
+# Rust
+api/target
+**/*.rs.bk
+
+# Node
+app/node_modules
+app/.svelte-kit
+app/build
+
+# Environment files
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
