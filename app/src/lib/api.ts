@@ -31,7 +31,7 @@ export type getFoodResponseSuccess = getFoodResponse200 & {
 export type getFoodResponse = getFoodResponseSuccess;
 
 export const getGetFoodUrl = () => {
-	return `http://localhost:3000/food`;
+	return `/api/food`;
 };
 
 export const getFood = async (
@@ -49,7 +49,7 @@ export const getFood = async (
 };
 
 export const getGetFoodQueryKey = () => {
-	return [`http://localhost:3000/food`] as const;
+	return [`/api/food`] as const;
 };
 
 export const getGetFoodQueryOptions = <

@@ -6,7 +6,7 @@ export default defineConfig({
 		output: {
 			target: "./src/lib/api.ts",
 			client: "svelte-query",
-			baseUrl: "http://localhost:3000",
+			baseUrl: "/api",
 			biome: true,
 		},
 	},
